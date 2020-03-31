@@ -1,6 +1,6 @@
 FROM python:3.7
 RUN apt-get update -y
-RUN apt-get upgrade -y
+RUN apt-get dist-upgrade -y
 
 COPY . /app
 WORKDIR /app
@@ -12,5 +12,5 @@ RUN pip install gunicorn
 
 EXPOSE 8080
 
-ENTRYPOINT ["gunicorn", "inbox-server:app"]
+ENTRYPOINT ["gunicorn", "catchallinbox:app"]
 
