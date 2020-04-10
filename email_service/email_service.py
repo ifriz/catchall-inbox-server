@@ -7,9 +7,9 @@ from imapclient import IMAPClient
 
 class EmailService():
 
-    hostname = 'devshop.works'
-    username = 'noreply@devshop.works'
-    password = 'noreply@2kmlgo4U'
+    hostname = ''
+    username = ''
+    password = ''
 
     def get_emails(self, email_address=None):
 
