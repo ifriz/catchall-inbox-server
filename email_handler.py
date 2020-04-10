@@ -4,6 +4,7 @@ from pycnic.core import Handler
 from pycnic.errors import HTTP_400
 from email_service import email_service
 
+
 class EmailHandler(Handler):
     logger = logging.getLogger("catchall_inbox_servera")
 
@@ -12,7 +13,6 @@ class EmailHandler(Handler):
 
         if not self.request.data.get('email'):
             raise HTTP_400("provide an email address")
-
 
         email_address = self.request.data.get('email')
 

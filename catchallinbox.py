@@ -7,7 +7,7 @@ from email_handler import EmailHandler
 
 
 class app(WSGI):
-    logger = logging.Logger("catchall_inbox_servera")
+    logger = logging.Logger("catchall_inbox_server")
 
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)

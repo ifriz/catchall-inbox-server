@@ -1,16 +1,15 @@
-FROM python:3.7
+FROM python:3.8-slim
 RUN apt-get update -y
 RUN apt-get dist-upgrade -y
 
 COPY . /app
 WORKDIR /app
 
-ENV API inbox-server.py
+RUN pip install --upgrade pip
 
 RUN pip install -r requirments.txt
 RUN pip install gunicorn
 
-EXPOSE 8080
+EXPOSE 8000
 
-ENTRYPOINT ["gunicorn", "catchallinbox:app"]
-
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "catchallinbox:app"]
