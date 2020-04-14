@@ -6,9 +6,12 @@ COPY . /app
 WORKDIR /app
 
 RUN pip install --upgrade pip
-
 RUN pip install -r requirments.txt
 RUN pip install gunicorn
+
+ENV CATCHALL_HOSTNAME = ""
+ENV CATCHALL_USERNAME = ""
+ENV CATCHALL_PASSWORD = ""
 
 EXPOSE 8000
 
