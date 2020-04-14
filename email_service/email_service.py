@@ -1,15 +1,21 @@
 import imaplib
-import configparser
 import os
 import email
+import logging
 from imapclient import IMAPClient
 
 
 class EmailService():
 
-    hostname = ''
-    username = ''
-    password = ''
+    logger = None
+    hostname, username, password = [""] * 3
+
+    def __init__(self):
+
+        self.logger = logging.getLogger("catchall_inbox_server")
+        self.hostname = os.environ["CATCHALL_HOSTNAME"]
+        self.username = os.environ["CATCHALL_USERNAME"]
+        self.password = os.environ["CATCHALL_PASSWORD"]
 
     def get_emails(self, email_address=None):
 
@@ -29,15 +35,19 @@ class EmailService():
 
                 response = client.fetch(messages, ['RFC822'])
 
+                if len(response) == 0:
+                    self.logger.debug(f"no message found for email: {email_address}")
+                    return None
+
                 # `response` is keyed by message id and contains parsed,
                 # converted response items.
                 for message_id, message_data in response.items():
                     email_message = email.message_from_bytes(message_data[b'RFC822'])
                     emails.append({"id": message_id, "message": email_message})
-                    print(message_id, email_message .get('From'), email_message .get('Subject'))
+                    print(message_id, email_message.get('From'), email_message.get('Subject'))
 
         except Exception as err:
-            print("Error occured attempting to fetch email")
+            print("Error occurred attempting to fetch email")
             print(f"Error: {err}")
 
         finally:
@@ -53,12 +63,15 @@ class EmailService():
                 client.select_folder("INBOX")
 
                 response = client.fetch(message_id, ['RFC822'])
+                if len(response) == 0:
+                    self.logger.debug(f"no message found with id {message_id}")
+                    return None
 
                 # `response` is keyed by message id and contains parsed,
                 # converted response items.
                 for message_id, message_data in response.items():
                     email_message = email.message_from_bytes(message_data[b'RFC822'])
-                    print(message_id, email_message .get('From'), email_message .get('Subject'))
+                    self.logger.info("Collecting message data for message id %d:", message_id)
 
                     result["from"] = email_message.get("From")
                     result["subject"] = email_message.get("Subject")
@@ -69,64 +82,6 @@ class EmailService():
             return result
 
         except Exception as err:
-            print("Error occurred attempting to fetch email")
-            print(f"Error: {err}")
+            self.logger.error("Error occurred attempting to fetch email: %s", err)
 
-    def open_connection(self, verbose=False):
-        # open an imap connections
-        hostname = 'devshop.works'
-        username = 'noreply@devshop.works'
-        password = 'noreply@2kmlgo4U'
 
-        if verbose:
-            print(f"Connecting to {hostname}")
-
-        # connect to host
-        connection = imaplib.IMAP4_SSL(hostname)
-
-        # login to catch-all mailbox.
-        if verbose:
-            print(f"Logging in to account {username}")
-
-        connection.login(username, password)
-
-        return connection
-
-    def find_emails(self, email_address=None):
-        c = self.open_connection(verbose=True)
-        try:
-            c.select(mailbox='INBOX', readonly=1)
-
-            search_criteria = "ALL"
-
-            if email_address is not None:
-                search_criteria = f'(TO "{email_address}")'
-
-            (retcode, msgnums) = c.search(None, search_criteria)
-
-            emails = []
-
-            if retcode == 'OK':
-                print(f'messages found for {search_criteria}')
-
-                msg_ids = msgnums[0].split()
-
-                print('fetching messages')
-                for msgid in msg_ids:
-                    typ, message = c.fetch(msgid, '(RFC822)')
-                    msg = email.message_from_bytes(message[0][1])
-
-                    emails.append({"id": msgid, "message": msg})
-
-                    # print(f'{msg["to"]}\n{msg["from"]}\n -- {msg["subject"]}\n')
-
-                print('finished fetching messages')
-
-            return emails
-
-        except Exception as err:
-            print("Error occured attempting to fetch email")
-            print(f"Error: {err}")
-
-        finally:
-            c.shutdown()
