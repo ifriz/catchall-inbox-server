@@ -6,7 +6,7 @@ from email_service import email_service
 
 
 class EmailHandler(Handler):
-    logger = logging.getLogger("catchall_inbox_servera")
+    logger = logging.getLogger("catchall_inbox_server")
 
     def post(self):
         """ get an emails for the specified email address """
@@ -46,6 +46,13 @@ class EmailHandler(Handler):
 
         service = email_service.EmailService()
         email_message = service.get_email_by_id(message_id)
+
+        if email_message is None:
+            return (
+                {
+                    "response": "no message found"
+                }
+            )
 
         return (
             {
