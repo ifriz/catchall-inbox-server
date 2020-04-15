@@ -22,6 +22,12 @@ def test_get_email_not_provided():
     assert response["success"] is False
 
 
+def test_get_email_does_not_exist():
+    service = email_service.EmailService()
+    response = service.get_emails("test@example.com")
+    assert response["success"] is False
+
+
 # To test a successful request to get an email, uncomment this test
 # Provide an email address that is known to exist in the mailbox.
 # def test_get_emails_is_successful():

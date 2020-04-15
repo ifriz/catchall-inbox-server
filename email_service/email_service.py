@@ -29,7 +29,7 @@ class EmailService(object):
                 self.logger.info("Loaded credentials from file")
 
         else:
-            self.logger.warning("Failure to load credential data")
+            self.logger.error("Failure to load credential data")
 
     def get_emails(self, email_address=None):
 
@@ -48,6 +48,10 @@ class EmailService(object):
         if not re.search(email_regex, email_address):
             return response
 
+        domain_part = email_address.split('@')[1]
+        if domain_part != self.hostname:
+            return response
+
         emails = []
 
         # lets go look for messages for a matching email address
@@ -58,15 +62,15 @@ class EmailService(object):
 
                 messages = client.search(['NOT', 'DELETED', 'TO', email_address])
 
-                response = client.fetch(messages, ['RFC822'])
+                mail_response = client.fetch(messages, ['RFC822'])
 
-                if len(response) == 0:
+                if len(mail_response) == 0:
                     self.logger.debug(f"no message found for email: {email_address}")
-                    return None
+                    return response
 
                 # `response` is keyed by message id and contains parsed,
                 # converted response items.
-                for message_id, message_data in response.items():
+                for message_id, message_data in mail_response.items():
                     email_message = email.message_from_bytes(message_data[b'RFC822'])
                     emails.append({"id": message_id, "message": email_message})
                     self.logger.info("Collecting message data for email %s:", email_address)
