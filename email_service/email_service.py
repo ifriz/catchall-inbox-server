@@ -6,19 +6,20 @@ import yaml
 from imapclient import IMAPClient
 
 
-class EmailService():
+class EmailService(object):
     logger = None
     hostname, username, password = [""] * 3
 
-    def __init__(self):
+    def __init__(self) -> object:
 
         self.logger = logging.getLogger("catchall_inbox_server")
 
+        # load credentials from environment variables
         if "CATCHALL_HOSTNAME" in os.environ:
             self.hostname = os.environ["CATCHALL_HOSTNAME"]
             self.username = os.environ["CATCHALL_USERNAME"]
             self.password = os.environ["CATCHALL_PASSWORD"]
-
+        # load credentials from yml file if environment variables don't exist
         elif os.path.exists(os.path.dirname(__file__) + '/../credentials.yml'):
             with open(os.path.dirname(__file__) + '/../credentials.yml') as f:
                 credentials_data = yaml.load(f, Loader=yaml.FullLoader)
@@ -32,15 +33,20 @@ class EmailService():
 
     def get_emails(self, email_address=None):
 
+        response = {
+            "success": False,
+            "emails": []
+        }
+
         # did we get anything in the request?
         if email_address is None:
             self.logger.warning("No email address provided")
-            return
+            return response
 
         # does the provided email address at least look like an email address?
         email_regex = r"^([\w\.\-_]+)?\w+@[-_\w]+(\.\w+)+$"
         if not re.search(email_regex, email_address):
-            return
+            return response
 
         emails = []
 
@@ -63,14 +69,16 @@ class EmailService():
                 for message_id, message_data in response.items():
                     email_message = email.message_from_bytes(message_data[b'RFC822'])
                     emails.append({"id": message_id, "message": email_message})
-                    print(message_id, email_message.get('From'), email_message.get('Subject'))
+                    self.logger.info("Collecting message data for email %s:", email_address)
+
+                response["success"] = True
+                response["emails"] = emails
 
         except Exception as err:
-            print("Error occurred attempting to fetch email")
-            print(f"Error: {err}")
+            self.logger.error("Error occurred attempting to fetch emails", err)
 
         finally:
-            return emails
+            return response
 
     def get_email_by_id(self, message_id):
 
