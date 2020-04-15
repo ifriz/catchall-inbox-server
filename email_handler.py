@@ -19,19 +19,22 @@ class EmailHandler(Handler):
         self.logger.info(f"fetching emails for {email_address}")
         service = email_service.EmailService()
 
-        emails = service.get_emails(email_address)
+        emails_response = service.get_emails(email_address)
 
-        data = []
+        response = {
+            "success": emails_response["success"],
+            "data": []
+        }
 
-        for email in emails:
+        for email in emails_response["emails"]:
             message_data = {
                 "id": email["id"],
                 "email": email.get("message")["from"],
                 "subject": email.get("message")["subject"]
             }
-            data.append(message_data)
+            response["data"].append(message_data)
 
-        return data
+        return response
 
     def get(self):
         if not self.request.args.get('mid'):
