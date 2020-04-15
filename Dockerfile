@@ -9,6 +9,7 @@ RUN pip install --upgrade pip
 RUN pip install -r requirments.txt
 RUN pip install gunicorn
 
+# set these environment variables at run time
 ENV CATCHALL_HOSTNAME = ""
 ENV CATCHALL_USERNAME = ""
 ENV CATCHALL_PASSWORD = ""
