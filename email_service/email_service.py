@@ -1,31 +1,50 @@
-import imaplib
 import os
 import email
 import logging
+import re
+import yaml
 from imapclient import IMAPClient
 
 
 class EmailService():
-
     logger = None
     hostname, username, password = [""] * 3
 
     def __init__(self):
 
         self.logger = logging.getLogger("catchall_inbox_server")
-        self.hostname = os.environ["CATCHALL_HOSTNAME"]
-        self.username = os.environ["CATCHALL_USERNAME"]
-        self.password = os.environ["CATCHALL_PASSWORD"]
+
+        if "CATCHALL_HOSTNAME" in os.environ:
+            self.hostname = os.environ["CATCHALL_HOSTNAME"]
+            self.username = os.environ["CATCHALL_USERNAME"]
+            self.password = os.environ["CATCHALL_PASSWORD"]
+
+        elif os.path.exists(os.path.dirname(__file__) + '/../credentials.yml'):
+            with open(os.path.dirname(__file__) + '/../credentials.yml') as f:
+                credentials_data = yaml.load(f, Loader=yaml.FullLoader)
+                self.hostname = credentials_data["hostname"]
+                self.username = credentials_data["username"]
+                self.password = credentials_data["password"]
+                self.logger.info("Loaded credentials from file")
+
+        else:
+            self.logger.warning("Failure to load credential data")
 
     def get_emails(self, email_address=None):
 
-        search_criteria = "ALL"
+        # did we get anything in the request?
+        if email_address is None:
+            self.logger.warning("No email address provided")
+            return
 
-        if email_address is not None:
-            search_criteria = f'(TO {email_address})'
+        # does the provided email address at least look like an email address?
+        email_regex = r"^([\w\.\-_]+)?\w+@[-_\w]+(\.\w+)+$"
+        if not re.search(email_regex, email_address):
+            return
 
         emails = []
 
+        # lets go look for messages for a matching email address
         try:
             with IMAPClient(host=self.hostname) as client:
                 client.login(self.username, self.password)
@@ -83,5 +102,3 @@ class EmailService():
 
         except Exception as err:
             self.logger.error("Error occurred attempting to fetch email: %s", err)
-
-
