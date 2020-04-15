@@ -16,9 +16,6 @@ class EmailHandler(Handler):
 
         email_address = self.request.data.get('email')
 
-        emails = []
-        # emails
-
         self.logger.info(f"fetching emails for {email_address}")
         service = email_service.EmailService()
 
