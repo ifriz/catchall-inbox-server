@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from pycnic.core import Handler
 from pycnic.errors import HTTP_400
 from email_service import email_service
@@ -16,9 +17,13 @@ class EmailHandler(Handler):
 
         email_address = self.request.data.get('email')
 
+        # check to see if the email address looks valid
+        email_regex = r"^([\w\.\-_]+)?\w+@[-_\w]+(\.\w+)+$"
+        if not re.search(email_regex, email_address):
+            raise HTTP_400("invalid email address")
+
         self.logger.info(f"fetching emails for {email_address}")
         service = email_service.EmailService()
-
         emails_response = service.get_emails(email_address)
 
         response = {
@@ -58,7 +63,7 @@ class EmailHandler(Handler):
             {
                 # "headers": email_message['headers'],
                 # "to": email_message['to'],
-                "from": email_message['from'],
+                "from": email_message['from'].decode('utf-8'),
                 "body": json.dumps(email_message['body'].decode('utf-8'))
             }
         )
