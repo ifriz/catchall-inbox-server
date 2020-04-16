@@ -20,4 +20,6 @@ Alternatively, copy the credentials-example.yml to credentials.yml and set the c
 
 After setting the credentials, run the application with:
 
+```
 waitress-serve catchallinbox:app
+```
