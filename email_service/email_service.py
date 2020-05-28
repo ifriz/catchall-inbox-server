@@ -79,7 +79,7 @@ class EmailService(object):
                 response["emails"] = emails
 
         except Exception as err:
-            self.logger.error("Error occurred attempting to fetch emails", err)
+            self.logger.error("Error occurred attempting to fetch emails for user", err)
 
         finally:
             return response
@@ -113,4 +113,4 @@ class EmailService(object):
             return result
 
         except Exception as err:
-            self.logger.error("Error occurred attempting to fetch email: %s", err)
+            self.logger.error("Error occurred attempting to fetch email message: %s", err)
