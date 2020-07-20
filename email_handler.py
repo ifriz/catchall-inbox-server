@@ -63,7 +63,7 @@ class EmailHandler(Handler):
             {
                 # "headers": email_message['headers'],
                 # "to": email_message['to'],
-                "from": email_message['from'].decode('utf-8'),
+                "from": email_message['from'],
                 "body": json.dumps(email_message['body'].decode('utf-8'))
             }
         )
