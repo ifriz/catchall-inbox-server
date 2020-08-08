@@ -1,6 +1,14 @@
+# ignore tests
+tests/
+
+# ignore virtualenv
+.venv
+venv/
+
 # ignore .get and .cache folders
 .git 
 .cache
+__pycache__
 
 # ignore all markdown files
 *.md
