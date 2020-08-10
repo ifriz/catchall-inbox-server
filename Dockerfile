@@ -1,6 +1,7 @@
 FROM python:3.8-slim
 RUN apt-get update -y
 RUN apt-get dist-upgrade -y
+RUN apt-get install build-essential -y
 
 COPY . /app
 WORKDIR /app
