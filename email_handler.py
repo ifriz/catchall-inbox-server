@@ -9,6 +9,10 @@ from email_service import email_service
 class EmailHandler(Handler):
     logger = logging.getLogger("catchall_inbox_server")
 
+    def options(self):
+        self.response.set_header('Access-Control-Allow-Methods', 'POST, GET')
+        return {}
+
     def post(self):
         """ get an emails for the specified email address """
 

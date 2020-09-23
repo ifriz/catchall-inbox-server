@@ -20,7 +20,9 @@ class app(WSGI):
     logger.info("setting up routing")
 
     # This allows * on all Handlers
-    headers = [("Access-Control-Allow-Origin", "*")]
+    headers = [("Access-Control-Allow-Origin", "*"),
+               ("Access-Control-Allow-Headers", "*")]
+
 
     routes = [
         ('/', EmailHandler()),
