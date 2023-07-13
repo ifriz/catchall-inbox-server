@@ -27,4 +27,5 @@ class app(WSGI):
     routes = [
         ('/', EmailHandler()),
         (r'/email', EmailHandler())
+        (r'/email/([\d]+)', EmailHandler())
     ]

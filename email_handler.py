@@ -45,11 +45,10 @@ class EmailHandler(Handler):
 
         return response
 
-    def get(self):
-        if not self.request.args.get('mid'):
+    def get(self, mid):
+        message_id = mid or self.request.args.get('mid')
+        if not message_id:
             raise HTTP_400("no message id listed")
-
-        message_id = self.request.args.get('mid')
 
         self.logger.info(f'fetching message {message_id}')
 

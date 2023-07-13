@@ -49,14 +49,14 @@ class EmailService(object):
             return response
 
         domain_part = email_address.split('@')[1]
-        if domain_part != self.hostname:
-            return response
+        # if domain_part != self.hostname:
+        #     return response
 
         emails = []
 
         # lets go look for messages for a matching email address
         try:
-            with IMAPClient(host=self.hostname) as client:
+            with IMAPClient(host=self.hostname, port=993) as client:
                 client.login(self.username, self.password)
                 client.select_folder("INBOX")
 
